@@ -1,0 +1,109 @@
+{% extends "index.html" %}
+
+{% block content %}
+<h2>Patient List</h2>
+
+<form method="post" action="{{ url_for('view_patients') }}">
+    <div class="form-group">
+        <label for="search_term">Search:</label>
+        <input type="text" class="form-control" id="search_term" name="search_term" placeholder="Enter name or patient ID">
+    </div>
+    <div class="form-group">
+        <label for="filter_gender">Filter by Gender:</label>
+        <select class="form-control" id="filter_gender" name="filter_gender">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="filter_admission_date">Filter by Admission Date:</label>
+        <input type="date" class="form-control" id="filter_admission_date" name="filter_admission_date">
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<div class="accordion" id="patientsAccordion">
+    {% for patient in patients %}
+    <div class="card">
+        <div class="card-header" id="heading{{ patient.id }}">
+            <h2 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{ patient.id }}" aria-expanded="true" aria-controls="collapse{{ patient.id }}">
+                    {{ patient.name }} (ID: {{ patient.id }})
+                </button>
+            </h2>
+        </div>
+
+        <div id="collapse{{ patient.id }}" class="collapse" aria-labelledby="heading{{ patient.id }}" data-parent="#patientsAccordion">
+            <div class="card-body">
+                <h5>Patient Details</h5>
+                <p><strong>Age:</strong> {{ patient.age }}</p>
+                <p><strong>Gender:</strong> {{ patient.gender }}</p>
+                <p><strong>Address:</strong> {{ patient.address }}</p>
+                <p><strong>Admission Date:</strong> {{ patient.admission_date }}</p>
+                <p><strong>Checkup Details:</strong> {{ patient.checkup_details }}</p>
+                <p><strong>Prescriptions:</strong> {{ patient.prescriptions }}</p>
+
+                <h5>Lab Data</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Test Name</th>
+                            <th>Result</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lab in patient.lab_data %}
+                        <tr>
+                            <td>{{ lab.test_name }}</td>
+                            <td>{{ lab.result }}</td>
+                            <td>{{ lab.date }}</td>
+                            <td>
+                                <a href="{{ url_for('update_lab_data', id=lab.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                <form action="{{ url_for('delete_lab_data', id=lab.id) }}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <h5>Billing Information</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in patient.billing %}
+                        <tr>
+                            <td>{{ bill.amount }}</td>
+                            <td>{{ bill.date }}</td>
+                            <td>
+                                <a href="{{ url_for('update_billing', id=bill.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                <form action="{{ url_for('delete_billing', id=bill.id) }}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <a href="{{ url_for('update_patient', id=patient.id) }}" class="btn btn-warning btn-sm">Edit Patient</a>
+                <form action="{{ url_for('delete_patient', id=patient.id) }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete Patient</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
